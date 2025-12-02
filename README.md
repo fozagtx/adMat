@@ -1,13 +1,13 @@
-# Sora Video Generator
+# SoraV2 Video Generator
 
-A Next.js 16 application for generating AI-powered videos using Sora technology. This project provides a complete frontend and API solution for video generation with TypeScript support and download functionality.
+A Next.js 16 application for generating AI-powered videos using SoraV2 API. This project provides a complete frontend and API solution for video generation with TypeScript support and download functionality.
 
 ## Features
 
-- **Video Generation**: Generate videos from text prompts using AI
-- **Real-time Progress Tracking**: Monitor generation progress with live updates
+- **Video Generation**: Generate videos from text prompts using SoraV2 AI
+- **Real-time Progress Tracking**: Monitor generation progress with live updates from SoraV2
 - **Video Gallery**: View all generated videos in a responsive gallery
-- **Download Support**: Download generated videos directly to your device
+- **Download Support**: Download generated videos directly from SoraV2 storage
 - **TypeScript Support**: Full TypeScript implementation with proper type definitions
 - **Dark Mode**: Built-in dark mode support
 - **Responsive Design**: Mobile-friendly interface using Tailwind CSS
@@ -18,8 +18,31 @@ A Next.js 16 application for generating AI-powered videos using Sora technology.
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS v4
 - **UI Components**: Custom React components
-- **API**: Next.js API routes
+- **API**: Next.js API routes with SoraV2 integration
 - **Image Optimization**: Next.js Image component
+
+## Prerequisites
+
+Before using this application, you need:
+
+1. **SoraV2 API Key**: Obtain your API key from the SoraV2 dashboard
+2. **Node.js**: Version 18 or higher
+3. **npm or yarn**: Package manager
+
+## Configuration
+
+1. **Copy the environment template:**
+   ```bash
+   cp .env.example .env.local
+   ```
+
+2. **Configure your environment variables:**
+   ```env
+   SORA_V2_API_KEY=your_sora_v2_api_key_here
+   SORA_V2_API_ENDPOINT=https://api.sora.v2/v1
+   ```
+
+   The `SORA_V2_API_KEY` is required. The `SORA_V2_API_ENDPOINT` defaults to the official SoraV2 API endpoint if not specified.
 
 ## Project Structure
 
@@ -95,12 +118,18 @@ Get details of a specific video (or all videos if no ID is provided).
    npm install
    ```
 
-2. **Run the development server:**
+2. **Configure environment variables:**
+   ```bash
+   cp .env.example .env.local
+   # Edit .env.local with your SoraV2 API key
+   ```
+
+3. **Run the development server:**
    ```bash
    npm run dev
    ```
 
-3. **Open your browser:**
+4. **Open your browser:**
    Navigate to [http://localhost:3000](http://localhost:3000)
 
 ## Available Scripts
@@ -137,10 +166,40 @@ The project includes comprehensive TypeScript types for type safety:
 
 ## Development Notes
 
-- The API currently uses mock data for demonstration purposes
-- In production, replace the mock implementation with actual Sora API calls
-- Video URLs and thumbnails are simulated for demo purposes
+- This application integrates directly with the SoraV2 API for video generation
+- All video processing and storage is handled by SoraV2 infrastructure
+- API calls are authenticated using Bearer tokens
 - The application supports both light and dark themes
+- Error handling includes proper API error responses from SoraV2
+
+## API Integration Details
+
+### SoraV2 API Endpoints Used
+
+1. **Video Generation**: `POST /v1/generate`
+   - Submits video generation requests to SoraV2
+   - Returns video ID and initial status
+
+2. **Video Status**: `GET /v1/videos/{id}`
+   - Retrieves current video status and metadata
+   - Returns video URLs when generation is complete
+
+3. **Progress Tracking**: `GET /v1/videos/{id}/progress`
+   - Real-time progress updates during generation
+   - Includes current step and estimated time remaining
+
+4. **Download**: `GET /v1/videos/{id}/download`
+   - Generates temporary download URLs for completed videos
+   - Redirects to actual video file storage
+
+### Error Handling
+
+The application handles various SoraV2 API errors:
+- Authentication failures (401/403)
+- Rate limiting (429)
+- Invalid requests (400)
+- Video not found (404)
+- Server errors (500)
 
 ## Contributing
 
