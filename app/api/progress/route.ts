@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ApiResponse, GenerationProgress } from '@/types';
 
-// Mock progress storage (in production, this would be connected to the generation system)
-const progressStore = new Map<string, GenerationProgress>();
+// SoraV2 API configuration
+const SORA_API_KEY = process.env.SORA_V2_API_KEY;
+const SORA_API_ENDPOINT = process.env.SORA_V2_API_ENDPOINT || 'https://api.sora.v2/v1';
+
+if (!SORA_API_KEY) {
+  console.warn('WARNING: SORA_V2_API_KEY environment variable is not set');
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,22 +21,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get or create progress entry
-    let progress = progressStore.get(videoId);
-    
-    if (!progress) {
-      progress = {
-        id: videoId,
-        progress: 0,
-        status: 'pending',
-        currentStep: 'Initializing...',
-        estimatedTimeRemaining: undefined,
-      };
-      progressStore.set(videoId, progress);
-      
-      // Start progress simulation
-      simulateProgress(videoId);
+    // Validate API key
+    if (!SORA_API_KEY) {
+      return NextResponse.json<ApiResponse<null>>(
+        { success: false, error: 'SoraV2 API key is not configured' },
+        { status: 500 }
+      );
     }
+
+    // Get progress from SoraV2 API
+    const progress = await getProgressFromSoraV2(videoId);
 
     return NextResponse.json<ApiResponse<GenerationProgress>>({
       success: true,
@@ -47,26 +46,36 @@ export async function GET(request: NextRequest) {
   }
 }
 
-async function simulateProgress(videoId: string) {
-  const steps = [
-    { progress: 10, step: 'Processing prompt...', status: 'processing' as const },
-    { progress: 30, step: 'Generating storyboard...', status: 'processing' as const },
-    { progress: 50, step: 'Creating video frames...', status: 'processing' as const },
-    { progress: 75, step: 'Applying effects and transitions...', status: 'processing' as const },
-    { progress: 90, step: 'Finalizing video...', status: 'processing' as const },
-    { progress: 100, step: 'Complete!', status: 'completed' as const },
-  ];
+async function getProgressFromSoraV2(videoId: string): Promise<GenerationProgress> {
+  try {
+    const response = await fetch(`${SORA_API_ENDPOINT}/videos/${videoId}/progress`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${SORA_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+    });
 
-  for (const { progress, step, status } of steps) {
-    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate time
-    
-    const currentProgress = progressStore.get(videoId);
-    if (currentProgress) {
-      currentProgress.progress = progress;
-      currentProgress.currentStep = step;
-      currentProgress.status = status;
-      currentProgress.estimatedTimeRemaining = progress < 100 ? Math.max(1, (100 - progress) * 0.1) : undefined;
-      progressStore.set(videoId, currentProgress);
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error('Video not found');
+      }
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`SoraV2 API error: ${response.status} - ${errorData.message || response.statusText}`);
     }
+
+    const data = await response.json();
+    
+    // Transform SoraV2 response to our internal format
+    return {
+      id: data.id,
+      progress: data.progress || 0,
+      status: data.status,
+      currentStep: data.current_step,
+      estimatedTimeRemaining: data.estimated_time_remaining,
+    };
+  } catch (error) {
+    console.error('Error getting progress from SoraV2:', error);
+    throw error;
   }
 }

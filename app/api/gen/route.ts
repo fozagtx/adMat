@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SoraVideoRequest, SoraVideoResponse, ApiResponse } from '@/types';
 
-// Mock storage for generated videos (in production, this would be a database)
-const videoStore = new Map<string, SoraVideoResponse>();
+// SoraV2 API configuration
+const SORA_API_KEY = process.env.SORA_V2_API_KEY;
+const SORA_API_ENDPOINT = process.env.SORA_V2_API_ENDPOINT || 'https://api.sora.v2/v1';
+
+if (!SORA_API_KEY) {
+  console.warn('WARNING: SORA_V2_API_KEY environment variable is not set');
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,31 +21,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate unique ID for the video
-    const videoId = `video_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // Validate API key
+    if (!SORA_API_KEY) {
+      return NextResponse.json<ApiResponse<null>>(
+        { success: false, error: 'SoraV2 API key is not configured' },
+        { status: 500 }
+      );
+    }
 
-    // Create initial video response
-    const videoResponse: SoraVideoResponse = {
-      id: videoId,
-      status: 'pending',
-      prompt: body.prompt.trim(),
-      duration: body.duration || 10,
-      resolution: body.resolution || '1080p',
-      style: body.style || 'realistic',
-      aspectRatio: body.aspectRatio || '16:9',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    // Store in mock database
-    videoStore.set(videoId, videoResponse);
-
-    // Start video generation process
-    startVideoGeneration(videoId);
+    // Call SoraV2 API to generate video
+    const soraResponse = await callSoraV2API(body);
 
     return NextResponse.json<ApiResponse<SoraVideoResponse>>({
       success: true,
-      data: videoResponse,
+      data: soraResponse,
       message: 'Video generation started successfully'
     });
 
@@ -58,27 +52,29 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const videoId = searchParams.get('id');
 
-    if (!videoId) {
-      // Return all videos if no specific ID is provided
-      const allVideos = Array.from(videoStore.values());
-      return NextResponse.json<ApiResponse<SoraVideoResponse[]>>({
-        success: true,
-        data: allVideos
-      });
-    }
-
-    // Return specific video
-    const video = videoStore.get(videoId);
-    if (!video) {
+    if (!SORA_API_KEY) {
       return NextResponse.json<ApiResponse<null>>(
-        { success: false, error: 'Video not found' },
-        { status: 404 }
+        { success: false, error: 'SoraV2 API key is not configured' },
+        { status: 500 }
       );
     }
 
+    if (!videoId) {
+      // SoraV2 API doesn't support listing all videos
+      // Return empty array with explanation
+      return NextResponse.json<ApiResponse<SoraVideoResponse[]>>({
+        success: true,
+        data: [],
+        message: 'SoraV2 API does not support listing all videos. Please use specific video IDs to retrieve individual videos.'
+      });
+    }
+
+    // Get video status from SoraV2 API
+    const videoStatus = await getVideoStatusFromSoraV2(videoId);
+
     return NextResponse.json<ApiResponse<SoraVideoResponse>>({
       success: true,
-      data: video
+      data: videoStatus
     });
 
   } catch (error) {
@@ -90,47 +86,88 @@ export async function GET(request: NextRequest) {
   }
 }
 
-async function startVideoGeneration(videoId: string) {
+async function callSoraV2API(request: SoraVideoRequest): Promise<SoraVideoResponse> {
   try {
-    // Simulate video generation process
-    // In production, this would call the actual Sora API
-    
-    // Update status to processing
-    await updateVideoStatus(videoId, 'processing');
+    const response = await fetch(`${SORA_API_ENDPOINT}/generate`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${SORA_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        prompt: request.prompt.trim(),
+        duration: request.duration || 10,
+        resolution: request.resolution || '1080p',
+        style: request.style || 'realistic',
+        aspect_ratio: request.aspectRatio || '16:9',
+      }),
+    });
 
-    // Simulate processing time (2-5 seconds)
-    const processingTime = Math.random() * 3000 + 2000;
-    await new Promise(resolve => setTimeout(resolve, processingTime));
-
-    // Generate mock video URLs
-    const mockVideoUrl = `https://example.com/videos/${videoId}.mp4`;
-    const mockThumbnailUrl = `https://example.com/videos/${videoId}.jpg`;
-
-    // Update to completed status
-    const video = videoStore.get(videoId);
-    if (video) {
-      video.status = 'completed';
-      video.videoUrl = mockVideoUrl;
-      video.thumbnailUrl = mockThumbnailUrl;
-      video.updatedAt = new Date().toISOString();
-      videoStore.set(videoId, video);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`SoraV2 API error: ${response.status} - ${errorData.message || response.statusText}`);
     }
 
+    const data = await response.json();
+    
+    // Transform SoraV2 response to our internal format
+    return {
+      id: data.id,
+      status: data.status,
+      prompt: data.prompt,
+      videoUrl: data.video_url,
+      thumbnailUrl: data.thumbnail_url,
+      duration: data.duration,
+      resolution: data.resolution,
+      style: data.style,
+      aspectRatio: data.aspect_ratio,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
+      error: data.error,
+    };
   } catch (error) {
-    console.error('Error in video generation process:', error);
-    // Update status to failed
-    await updateVideoStatus(videoId, 'failed', 'Video generation failed');
+    console.error('Error calling SoraV2 API:', error);
+    throw error;
   }
 }
 
-async function updateVideoStatus(videoId: string, status: SoraVideoResponse['status'], error?: string) {
-  const video = videoStore.get(videoId);
-  if (video) {
-    video.status = status;
-    video.updatedAt = new Date().toISOString();
-    if (error) {
-      video.error = error;
+async function getVideoStatusFromSoraV2(videoId: string): Promise<SoraVideoResponse> {
+  try {
+    const response = await fetch(`${SORA_API_ENDPOINT}/videos/${videoId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${SORA_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error('Video not found');
+      }
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`SoraV2 API error: ${response.status} - ${errorData.message || response.statusText}`);
     }
-    videoStore.set(videoId, video);
+
+    const data = await response.json();
+    
+    // Transform SoraV2 response to our internal format
+    return {
+      id: data.id,
+      status: data.status,
+      prompt: data.prompt,
+      videoUrl: data.video_url,
+      thumbnailUrl: data.thumbnail_url,
+      duration: data.duration,
+      resolution: data.resolution,
+      style: data.style,
+      aspectRatio: data.aspect_ratio,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
+      error: data.error,
+    };
+  } catch (error) {
+    console.error('Error getting video status from SoraV2:', error);
+    throw error;
   }
 }
