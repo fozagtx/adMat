@@ -3,7 +3,7 @@ import { ApiResponse } from '@/types';
 
 // OpenAI API configuration
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const SORA_API_ENDPOINT = process.env.SORA_V2_API_ENDPOINT || 'https://api.openai.com/v1';
+const OPENAI_API_BASE = 'https://api.openai.com/v1';
 
 if (!OPENAI_API_KEY) {
   console.warn('WARNING: OPENAI_API_KEY environment variable is not set');
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
 
 async function getVideoDownloadUrlFromSoraV2(videoId: string): Promise<string> {
   try {
-    const response = await fetch(`${SORA_API_ENDPOINT}/videos/${videoId}/download`, {
+    const response = await fetch(`${OPENAI_API_BASE}/videos/${videoId}/download`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${OPENAI_API_KEY}`,
