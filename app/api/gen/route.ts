@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SoraVideoRequest, SoraVideoResponse, ApiResponse } from '@/types';
 
-// OpenAI API configuration (Sora uses the same key as other OpenAI services)
-// Support both OPENAI_API_KEY and SORA_V2_API_KEY for backward compatibility
-const SORA_API_KEY = process.env.OPENAI_API_KEY || process.env.SORA_V2_API_KEY;
-const SORA_API_ENDPOINT = process.env.SORA_V2_API_ENDPOINT || 'https://api.openai.com/v1';
+// OpenAI API configuration
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const OPENAI_API_BASE = 'https://api.openai.com/v1';
 
-if (!SORA_API_KEY) {
-  console.warn('WARNING: OPENAI_API_KEY or SORA_V2_API_KEY environment variable is not set');
+if (!OPENAI_API_KEY) {
+  console.warn('WARNING: OPENAI_API_KEY environment variable is not set');
 }
 
 export async function POST(request: NextRequest) {
@@ -23,7 +22,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate API key
-    if (!SORA_API_KEY) {
+    if (!OPENAI_API_KEY) {
       return NextResponse.json<ApiResponse<null>>(
         { success: false, error: 'OpenAI API key is not configured' },
         { status: 500 }
@@ -53,7 +52,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const videoId = searchParams.get('id');
 
-    if (!SORA_API_KEY) {
+    if (!OPENAI_API_KEY) {
       return NextResponse.json<ApiResponse<null>>(
         { success: false, error: 'OpenAI API key is not configured' },
         { status: 500 }
@@ -89,10 +88,10 @@ export async function GET(request: NextRequest) {
 
 async function callSoraV2API(request: SoraVideoRequest): Promise<SoraVideoResponse> {
   try {
-    const response = await fetch(`${SORA_API_ENDPOINT}/generate`, {
+    const response = await fetch(`${OPENAI_API_BASE}/videos`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${SORA_API_KEY}`,
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -134,10 +133,10 @@ async function callSoraV2API(request: SoraVideoRequest): Promise<SoraVideoRespon
 
 async function getVideoStatusFromSoraV2(videoId: string): Promise<SoraVideoResponse> {
   try {
-    const response = await fetch(`${SORA_API_ENDPOINT}/videos/${videoId}`, {
+    const response = await fetch(`${OPENAI_API_BASE}/videos/${videoId}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${SORA_API_KEY}`,
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
         'Content-Type': 'application/json',
       },
     });
