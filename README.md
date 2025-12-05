@@ -25,7 +25,7 @@ A Next.js 16 application for generating AI-powered videos using SoraV2 API. This
 
 Before using this application, you need:
 
-1. **SoraV2 API Key**: Obtain your API key from the SoraV2 dashboard
+1. **OpenAI API Key**: Obtain your API key from https://platform.openai.com/api-keys (Sora uses the same key as other OpenAI services)
 2. **Node.js**: Version 18 or higher
 3. **npm or yarn**: Package manager
 
@@ -38,11 +38,10 @@ Before using this application, you need:
 
 2. **Configure your environment variables:**
    ```env
-   SORA_V2_API_KEY=your_sora_v2_api_key_here
-   SORA_V2_API_ENDPOINT=https://api.sora.v2/v1
+   OPENAI_API_KEY=your_openai_api_key_here
    ```
 
-   The `SORA_V2_API_KEY` is required. The `SORA_V2_API_ENDPOINT` defaults to the official SoraV2 API endpoint if not specified.
+   The `OPENAI_API_KEY` is required. Sora uses the same API key as all other OpenAI services (ChatGPT, DALL-E, etc.).
 
 ## Project Structure
 
@@ -121,7 +120,7 @@ Get details of a specific video (or all videos if no ID is provided).
 2. **Configure environment variables:**
    ```bash
    cp .env.example .env.local
-   # Edit .env.local with your SoraV2 API key
+   # Edit .env.local with your OpenAI API key
    ```
 
 3. **Run the development server:**

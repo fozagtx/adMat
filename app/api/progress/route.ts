@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ApiResponse, GenerationProgress } from '@/types';
 
-// SoraV2 API configuration
-const SORA_API_KEY = process.env.SORA_V2_API_KEY;
-const SORA_API_ENDPOINT = process.env.SORA_V2_API_ENDPOINT || 'https://api.sora.v2/v1';
+// OpenAI API configuration (Sora uses the same key as other OpenAI services)
+const SORA_API_KEY = process.env.OPENAI_API_KEY;
+const SORA_API_ENDPOINT = process.env.SORA_V2_API_ENDPOINT || 'https://api.openai.com/v1';
 
 if (!SORA_API_KEY) {
-  console.warn('WARNING: SORA_V2_API_KEY environment variable is not set');
+  console.warn('WARNING: OPENAI_API_KEY environment variable is not set');
 }
 
 export async function GET(request: NextRequest) {
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     // Validate API key
     if (!SORA_API_KEY) {
       return NextResponse.json<ApiResponse<null>>(
-        { success: false, error: 'SoraV2 API key is not configured' },
+        { success: false, error: 'OpenAI API key is not configured' },
         { status: 500 }
       );
     }
