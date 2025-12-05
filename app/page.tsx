@@ -20,19 +20,54 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-black">
-      <div className="container mx-auto py-8 px-4">
-        <header className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Sora Video Generator
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50 to-blue-50 dark:from-gray-950 dark:via-purple-950 dark:to-blue-950 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-400/20 dark:bg-purple-600/10 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute top-1/3 -left-40 w-96 h-96 bg-blue-400/20 dark:bg-blue-600/10 rounded-full blur-3xl animate-float-delayed"></div>
+        <div className="absolute -bottom-40 right-1/3 w-80 h-80 bg-indigo-400/20 dark:bg-indigo-600/10 rounded-full blur-3xl animate-float"></div>
+      </div>
+
+      <div className="container mx-auto py-12 px-4 relative z-10">
+        <header className="text-center mb-16">
+          <div className="inline-flex items-center justify-center gap-4 mb-6">
+            <div className="w-16 h-16 bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-600 rounded-2xl shadow-2xl flex items-center justify-center transform hover:rotate-12 transition-transform duration-300">
+              <svg className="w-9 h-9 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+          </div>
+          <h1 className="text-6xl font-black mb-6">
+            <span className="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              Sora
+            </span>
+            <span className="text-gray-900 dark:text-white"> Video Studio</span>
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Create stunning videos from text prompts using AI-powered generation.
-            Simply describe your vision and watch it come to life.
+          <p className="text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed font-medium">
+            Transform your ideas into stunning videos with AI-powered generation.
+            <br />
+            <span className="text-base text-gray-600 dark:text-gray-400">Simply describe your vision and watch it come to life in seconds.</span>
           </p>
+
+          {/* Feature Pills */}
+          <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
+            <div className="px-4 py-2 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-full border border-purple-200 dark:border-purple-800 shadow-sm">
+              <span className="text-sm font-semibold text-purple-700 dark:text-purple-300">✨ AI-Powered</span>
+            </div>
+            <div className="px-4 py-2 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-full border border-blue-200 dark:border-blue-800 shadow-sm">
+              <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">⚡ Lightning Fast</span>
+            </div>
+            <div className="px-4 py-2 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-full border border-indigo-200 dark:border-indigo-800 shadow-sm">
+              <span className="text-sm font-semibold text-indigo-700 dark:text-indigo-300">🎨 Multiple Styles</span>
+            </div>
+            <div className="px-4 py-2 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-full border border-purple-200 dark:border-purple-800 shadow-sm">
+              <span className="text-sm font-semibold text-purple-700 dark:text-purple-300">📹 4K Quality</span>
+            </div>
+          </div>
         </header>
 
-        <main className="space-y-8">
+        <main className="space-y-12">
           {!showProgress ? (
             <VideoGenerator onVideoGenerated={handleVideoGenerated} />
           ) : currentVideoId ? (
@@ -45,8 +80,21 @@ export default function Home() {
           <VideoGallery refreshTrigger={galleryRefresh} />
         </main>
 
-        <footer className="mt-16 text-center text-sm text-gray-500 dark:text-gray-400">
-          <p>Powered by Sora AI • Generated videos are for demonstration purposes</p>
+        <footer className="mt-20 text-center">
+          <div className="inline-flex items-center justify-center gap-3 px-6 py-4 bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-xl">
+            <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
+              <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <div className="text-left">
+              <p className="text-sm font-semibold text-gray-900 dark:text-white">Powered by SoraV2 AI</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400">Next-generation video synthesis technology</p>
+            </div>
+          </div>
+          <p className="mt-6 text-sm text-gray-500 dark:text-gray-500">
+            © 2024 Sora Video Studio • All videos generated are for demonstration purposes
+          </p>
         </footer>
       </div>
     </div>
