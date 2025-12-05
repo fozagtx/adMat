@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { SoraVideoRequest, SoraVideoResponse, ApiResponse } from '@/types';
 
 // OpenAI API configuration (Sora uses the same key as other OpenAI services)
-const SORA_API_KEY = process.env.OPENAI_API_KEY;
+// Support both OPENAI_API_KEY and SORA_V2_API_KEY for backward compatibility
+const SORA_API_KEY = process.env.OPENAI_API_KEY || process.env.SORA_V2_API_KEY;
 const SORA_API_ENDPOINT = process.env.SORA_V2_API_ENDPOINT || 'https://api.openai.com/v1';
 
 if (!SORA_API_KEY) {
-  console.warn('WARNING: OPENAI_API_KEY environment variable is not set');
+  console.warn('WARNING: OPENAI_API_KEY or SORA_V2_API_KEY environment variable is not set');
 }
 
 export async function POST(request: NextRequest) {
