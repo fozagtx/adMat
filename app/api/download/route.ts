@@ -37,8 +37,9 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('Error downloading video:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return NextResponse.json<ApiResponse<null>>(
-      { success: false, error: 'Internal server error' },
+      { success: false, error: errorMessage },
       { status: 500 }
     );
   }
@@ -46,7 +47,8 @@ export async function GET(request: NextRequest) {
 
 async function getVideoDownloadUrlFromSoraV2(videoId: string): Promise<string> {
   try {
-    const response = await fetch(`${OPENAI_API_BASE}/videos/${videoId}/download`, {
+    // Get video details from Sora API to retrieve the video URL
+    const response = await fetch(`${OPENAI_API_BASE}/videos/generations/${videoId}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${OPENAI_API_KEY}`,
@@ -59,13 +61,25 @@ async function getVideoDownloadUrlFromSoraV2(videoId: string): Promise<string> {
         throw new Error('Video not found');
       }
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(`SoraV2 API error: ${response.status} - ${errorData.message || response.statusText}`);
+      const errorMessage = errorData.error?.message || errorData.message || response.statusText;
+      throw new Error(`Sora API error: ${response.status} - ${errorMessage}`);
     }
 
     const data = await response.json();
-    return data.download_url || data.video_url;
+
+    // Check if video is ready
+    if (data.status !== 'succeeded' && data.status !== 'completed') {
+      throw new Error(`Video is not ready for download. Current status: ${data.status}`);
+    }
+
+    const videoUrl = data.url || data.video_url || data.download_url;
+    if (!videoUrl) {
+      throw new Error('Video URL not available');
+    }
+
+    return videoUrl;
   } catch (error) {
-    console.error('Error getting download URL from SoraV2:', error);
+    console.error('Error getting download URL from Sora API:', error);
     throw error;
   }
 }

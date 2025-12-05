@@ -39,16 +39,32 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('Error fetching progress:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return NextResponse.json<ApiResponse<null>>(
-      { success: false, error: 'Internal server error' },
+      { success: false, error: errorMessage },
       { status: 500 }
     );
   }
 }
 
+// Map Sora API status to our internal status
+function mapSoraStatus(status: string): 'pending' | 'processing' | 'completed' | 'failed' {
+  const statusMap: Record<string, 'pending' | 'processing' | 'completed' | 'failed'> = {
+    'queued': 'pending',
+    'in_progress': 'processing',
+    'processing': 'processing',
+    'succeeded': 'completed',
+    'completed': 'completed',
+    'failed': 'failed',
+    'cancelled': 'failed',
+  };
+  return statusMap[status] || 'pending';
+}
+
 async function getProgressFromSoraV2(videoId: string): Promise<GenerationProgress> {
   try {
-    const response = await fetch(`${OPENAI_API_BASE}/videos/${videoId}/progress`, {
+    // Sora API uses the same endpoint for status - we derive progress from status
+    const response = await fetch(`${OPENAI_API_BASE}/videos/generations/${videoId}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${OPENAI_API_KEY}`,
@@ -61,21 +77,32 @@ async function getProgressFromSoraV2(videoId: string): Promise<GenerationProgres
         throw new Error('Video not found');
       }
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(`SoraV2 API error: ${response.status} - ${errorData.message || response.statusText}`);
+      const errorMessage = errorData.error?.message || errorData.message || response.statusText;
+      throw new Error(`Sora API error: ${response.status} - ${errorMessage}`);
     }
 
     const data = await response.json();
-    
-    // Transform SoraV2 response to our internal format
+
+    // Map status to progress percentage
+    const statusToProgress: Record<string, number> = {
+      'queued': 0,
+      'in_progress': 50,
+      'processing': 50,
+      'succeeded': 100,
+      'completed': 100,
+      'failed': 0,
+    };
+
+    // Transform Sora API response to our internal format
     return {
       id: data.id,
-      progress: data.progress || 0,
-      status: data.status,
-      currentStep: data.current_step,
+      progress: data.progress || statusToProgress[data.status] || 0,
+      status: mapSoraStatus(data.status),
+      currentStep: data.current_step || data.status,
       estimatedTimeRemaining: data.estimated_time_remaining,
     };
   } catch (error) {
-    console.error('Error getting progress from SoraV2:', error);
+    console.error('Error getting progress from Sora API:', error);
     throw error;
   }
 }
