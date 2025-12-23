@@ -95,6 +95,7 @@ export default function ChatPlayground() {
     title: '',
     content: '',
   });
+  const [artifactExpanded, setArtifactExpanded] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -115,6 +116,7 @@ export default function ChatPlayground() {
 
   const closeArtifact = () => {
     setArtifact((prev) => ({ ...prev, isOpen: false }));
+    setArtifactExpanded(false);
   };
 
   const scrollToBottom = () => {
@@ -230,7 +232,11 @@ export default function ChatPlayground() {
   };
 
   return (
-    <div className={cn('flex flex-col h-full bg-[#0a0a0a]', artifact.isOpen && 'md:pr-[480px]')}>
+    <div className={cn(
+      'flex flex-col h-full bg-[#0a0a0a] transition-all duration-300',
+      artifact.isOpen && !artifactExpanded && 'md:pr-[480px]',
+      artifact.isOpen && artifactExpanded && 'md:pr-[66.666667%]'
+    )}>
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto min-h-0">
         {messages.length === 0 ? (
@@ -418,7 +424,6 @@ export default function ChatPlayground() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="font-medium text-sm">{model.name}</div>
-                            <div className="text-xs text-white/40 truncate">{model.provider}</div>
                           </div>
                           {selectedModel.id === model.id && (
                             <Check className="w-4 h-4 text-violet-400" />
@@ -460,13 +465,7 @@ export default function ChatPlayground() {
               />
             </div>
 
-            <div className="flex items-center justify-between p-3 pt-0">
-              <div className="flex items-center gap-2">
-                <button className="px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-xs text-white/60 flex items-center gap-1.5 transition-colors">
-                  <FileText className="w-3.5 h-3.5" />
-                  Generate a document
-                </button>
-              </div>
+            <div className="flex items-center justify-end p-3 pt-0">
               <div className="flex items-center gap-2">
                 <button className="w-9 h-9 rounded-full text-white/40 hover:text-white hover:bg-white/5 flex items-center justify-center transition-colors">
                   <Mic className="w-5 h-5" />
@@ -496,6 +495,7 @@ export default function ChatPlayground() {
         title={artifact.title}
         content={artifact.content}
         language={artifact.language}
+        onExpandChange={setArtifactExpanded}
       />
     </div>
   );

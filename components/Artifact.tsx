@@ -23,6 +23,7 @@ interface ArtifactProps {
   title: string;
   content: string;
   language?: string;
+  onExpandChange?: (expanded: boolean) => void;
 }
 
 const typeConfig = {
@@ -39,15 +40,22 @@ export default function Artifact({
   title,
   content,
   language,
+  onExpandChange,
 }: ArtifactProps) {
   const [copied, setCopied] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
+  const handleExpand = (expanded: boolean) => {
+    setIsExpanded(expanded);
+    onExpandChange?.(expanded);
+  };
+
   useEffect(() => {
     if (!isOpen) {
       setIsExpanded(false);
+      onExpandChange?.(false);
     }
-  }, [isOpen]);
+  }, [isOpen, onExpandChange]);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(content);
@@ -98,7 +106,7 @@ export default function Artifact({
         </div>
         <div className="flex items-center gap-1">
           <button
-            onClick={() => setIsExpanded(!isExpanded)}
+            onClick={() => handleExpand(!isExpanded)}
             className="p-2 text-white/40 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
             title={isExpanded ? 'Minimize' : 'Expand'}
           >

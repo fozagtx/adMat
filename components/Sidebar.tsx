@@ -7,7 +7,6 @@ import {
   Settings,
   HelpCircle,
   ChevronLeft,
-  Sparkles,
   FolderOpen,
   Wrench,
 } from 'lucide-react';
@@ -37,8 +36,8 @@ export default function Sidebar({ activeNav, onNavChange }: SidebarProps) {
     >
       <div className="p-4 border-b border-white/10">
         <div className={cn('flex items-center gap-3', isCollapsed && 'justify-center')}>
-          <div className="w-9 h-9 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
-            <Sparkles className="w-5 h-5 text-white" />
+          <div className="w-9 h-9 bg-black rounded-lg flex items-center justify-center flex-shrink-0 border border-[#00ff41]/50 shadow-[0_0_10px_rgba(0,255,65,0.3)]">
+            <span className="text-[#00ff41] font-bold text-xs tracking-tight" style={{ textShadow: '0 0 10px #00ff41, 0 0 20px #00ff41' }}>PI</span>
           </div>
           {!isCollapsed && (
             <span className="text-white font-semibold tracking-tight">AI Frontrunners</span>
