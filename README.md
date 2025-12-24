@@ -1,213 +1,110 @@
-# SoraV2 Video Generator
+# Hackathon Doc Chat - AI Design Thinking Partner
 
-A Next.js 16 application for generating AI-powered videos using SoraV2 API. This project provides a complete frontend and API solution for video generation with TypeScript support and download functionality.
+A Chrome extension that lets you chat with any hackathon document page using AI. Acts as your design thinking partner to help ideate, analyze requirements, and develop winning strategies.
 
 ## Features
 
-- **Video Generation**: Generate videos from text prompts using SoraV2 AI
-- **Real-time Progress Tracking**: Monitor generation progress with live updates from SoraV2
-- **Video Gallery**: View all generated videos in a responsive gallery
-- **Download Support**: Download generated videos directly from SoraV2 storage
-- **TypeScript Support**: Full TypeScript implementation with proper type definitions
-- **Dark Mode**: Built-in dark mode support
-- **Responsive Design**: Mobile-friendly interface using Tailwind CSS
+- **Toggle Sidebar UI** - Claude Code-style sidebar that takes a portion of the page
+- **Multi-Model Support** - Choose from 4 AI models:
+  - Kimi K2 (Moonshot AI) - Fast text model
+  - DeepSeek R1 (DeepSeek) - Reasoning model
+  - Qwen 2.5 VL (Alibaba) - Vision model
+  - Pixtral 12B (Mistral AI) - Vision model
+- **Page Context Extraction** - Automatically extracts content from the current page
+- **Design Thinking Partner** - AI trained to help with:
+  - Analyzing requirements and constraints
+  - Identifying user pain points
+  - Suggesting innovative features
+  - Recommending tech stacks
+  - Developing winning strategies
+- **Quick Actions** - One-click prompts for common tasks
+- **Beautiful UI** - Dark theme matching the main app aesthetic
 
-## Tech Stack
+## Installation
 
-- **Frontend**: Next.js 16 with App Router
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS v4
-- **UI Components**: Custom React components
-- **API**: Next.js API routes with SoraV2 integration
-- **Image Optimization**: Next.js Image component
+### Load as Unpacked Extension (Developer Mode)
 
-## Prerequisites
+1. Open Chrome and navigate to `chrome://extensions/`
+2. Enable **Developer mode** (toggle in top right)
+3. Click **Load unpacked**
+4. Select the `extension` folder from this project
+5. The extension icon will appear in your toolbar
 
-Before using this application, you need:
+### Setup
 
-1. **OpenAI API Key**: Obtain your API key from https://platform.openai.com/api-keys (Sora uses the same key as other OpenAI services)
-2. **Node.js**: Version 18 or higher
-3. **npm or yarn**: Package manager
-
-## Configuration
-
-1. **Copy the environment template:**
-   ```bash
-   cp .env.example .env.local
-   ```
-
-2. **Configure your environment variables:**
-   ```env
-   OPENAI_API_KEY=your_openai_api_key_here
-   ```
-
-   The `OPENAI_API_KEY` is required. Sora uses the same API key as all other OpenAI services (ChatGPT, DALL-E, etc.).
-
-## Project Structure
-
-```
-sora/
-├── app/
-│   ├── api/
-│   │   ├── gen/           # Video generation API
-│   │   ├── download/      # Video download API
-│   │   └── progress/      # Progress tracking API
-│   ├── globals.css        # Global styles
-│   ├── layout.tsx         # Root layout
-│   └── page.tsx           # Home page
-├── components/
-│   ├── VideoGenerator.tsx # Video generation form
-│   ├── ProgressTracker.tsx # Progress tracking component
-│   ├── VideoGallery.tsx   # Video gallery component
-│   └── index.ts           # Component exports
-├── lib/
-│   └── api.ts             # API client utilities
-├── types/
-│   ├── sora.ts            # Sora-specific types
-│   └── index.ts           # Type exports
-├── public/                # Static assets
-└── README.md
-```
-
-## API Endpoints
-
-### POST /api/gen
-Generate a new video from a text prompt.
-
-**Request Body:**
-```typescript
-{
-  prompt: string;
-  duration?: number;
-  resolution?: '720p' | '1080p' | '4k';
-  style?: 'realistic' | 'cinematic' | 'animated' | 'artistic';
-  aspectRatio?: '16:9' | '9:16' | '1:1';
-}
-```
-
-**Response:**
-```typescript
-{
-  success: boolean;
-  data?: {
-    id: string;
-    status: 'pending' | 'processing' | 'completed' | 'failed';
-    prompt: string;
-    videoUrl?: string;
-    thumbnailUrl?: string;
-    // ... other metadata
-  };
-  error?: string;
-}
-```
-
-### GET /api/progress?id={videoId}
-Get the progress of a video generation request.
-
-### GET /api/download?id={videoId}
-Download a generated video.
-
-### GET /api/gen?id={videoId}
-Get details of a specific video (or all videos if no ID is provided).
-
-## Getting Started
-
-1. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-2. **Configure environment variables:**
-   ```bash
-   cp .env.example .env.local
-   # Edit .env.local with your OpenAI API key
-   ```
-
-3. **Run the development server:**
-   ```bash
-   npm run dev
-   ```
-
-4. **Open your browser:**
-   Navigate to [http://localhost:3000](http://localhost:3000)
-
-## Available Scripts
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
+1. Click the extension icon or the floating chat button on any page
+2. Click **Settings** in the sidebar
+3. Enter your **Hyperbolic API Key**
+   - Get one from [Hyperbolic](https://hyperbolic.xyz)
+4. Click **Save**
 
 ## Usage
 
-1. **Generate a Video:**
-   - Enter a descriptive prompt in the text area
-   - Configure optional settings (duration, resolution, style, aspect ratio)
-   - Click "Generate Video" to start the process
+1. **Navigate to any hackathon document page** (DevPost, Notion, GitHub, etc.)
+2. **Click the floating chat button** (bottom right) or extension icon
+3. **The sidebar opens** and automatically extracts page content
+4. **Select your preferred AI model** from the dropdown
+5. **Start chatting** - ask questions or use quick actions:
+   - "Analyze requirements" - Extract key requirements
+   - "Identify user pain points" - Find problems to solve
+   - "Suggest features" - Get innovative feature ideas
+   - "Winning strategy" - Get tips on impressing judges
+   - "Tech stack ideas" - Get technology recommendations
 
-2. **Track Progress:**
-   - View real-time progress updates
-   - See current processing step and estimated time remaining
+## File Structure
 
-3. **View and Download:**
-   - Browse all generated videos in the gallery
-   - Click "View" to watch the video
-   - Click "Download" to save it to your device
+```
+extension/
+├── manifest.json         # Chrome extension manifest (v3)
+├── background.js         # Service worker for API calls
+├── content.js            # Content script for sidebar UI
+├── styles/
+│   └── sidebar.css       # Sidebar styling
+├── icons/
+│   ├── icon16.png
+│   ├── icon32.png
+│   ├── icon48.png
+│   └── icon128.png
+├── create-icons.js       # Icon generation script
+├── generate-icons.html   # Manual icon generation
+└── README.md             # This file
+```
 
-## TypeScript Types
+## Development
 
-The project includes comprehensive TypeScript types for type safety:
+### Regenerate Icons
 
-- `SoraVideoRequest` - Video generation request parameters
-- `SoraVideoResponse` - Video generation response data
-- `GenerationProgress` - Progress tracking information
-- `ApiResponse` - Standardized API response format
+```bash
+cd extension
+node create-icons.js
+```
 
-## Development Notes
+### Test Changes
 
-- This application integrates directly with the SoraV2 API for video generation
-- All video processing and storage is handled by SoraV2 infrastructure
-- API calls are authenticated using Bearer tokens
-- The application supports both light and dark themes
-- Error handling includes proper API error responses from SoraV2
+1. Make changes to the extension files
+2. Go to `chrome://extensions/`
+3. Click the refresh icon on the extension card
+4. Reload the page you're testing on
 
-## API Integration Details
+## API
 
-### SoraV2 API Endpoints Used
+The extension uses the **Hyperbolic API** for AI chat completions, compatible with the same models used in the main application.
 
-1. **Video Generation**: `POST /v1/generate`
-   - Submits video generation requests to SoraV2
-   - Returns video ID and initial status
+### Supported Models
 
-2. **Video Status**: `GET /v1/videos/{id}`
-   - Retrieves current video status and metadata
-   - Returns video URLs when generation is complete
+| Model | Provider | Type | Vision |
+|-------|----------|------|--------|
+| Kimi K2 | Moonshot AI | Text | No |
+| DeepSeek R1 | DeepSeek | Text | No |
+| Qwen 2.5 VL | Alibaba | Vision | Yes |
+| Pixtral 12B | Mistral AI | Vision | Yes |
 
-3. **Progress Tracking**: `GET /v1/videos/{id}/progress`
-   - Real-time progress updates during generation
-   - Includes current step and estimated time remaining
+## Permissions
 
-4. **Download**: `GET /v1/videos/{id}/download`
-   - Generates temporary download URLs for completed videos
-   - Redirects to actual video file storage
-
-### Error Handling
-
-The application handles various SoraV2 API errors:
-- Authentication failures (401/403)
-- Rate limiting (429)
-- Invalid requests (400)
-- Video not found (404)
-- Server errors (500)
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests and linting
-5. Submit a pull request
+- `activeTab` - Access current tab content
+- `storage` - Store API key and preferences
+- `scripting` - Inject content script dynamically
 
 ## License
 
-This project is for demonstration purposes. Please check the license file for more information.
+Part of the AI Frontrunners hackathon project.
