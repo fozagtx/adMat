@@ -1,110 +1,113 @@
-# Hackathon Doc Chat - AI Design Thinking Partner
+# Hackathon Doc Chat
 
-A Chrome extension that lets you chat with any hackathon document page using AI. Acts as your design thinking partner to help ideate, analyze requirements, and develop winning strategies.
+A Chrome extension that lets you chat with any webpage using AI. Your design thinking partner for hackathon projects.
 
 ## Features
 
-- **Toggle Sidebar UI** - Claude Code-style sidebar that takes a portion of the page
-- **Multi-Model Support** - Choose from 4 AI models:
-  - Kimi K2 (Moonshot AI) - Fast text model
-  - DeepSeek R1 (DeepSeek) - Reasoning model
-  - Qwen 2.5 VL (Alibaba) - Vision model
-  - Pixtral 12B (Mistral AI) - Vision model
-- **Page Context Extraction** - Automatically extracts content from the current page
-- **Design Thinking Partner** - AI trained to help with:
-  - Analyzing requirements and constraints
-  - Identifying user pain points
-  - Suggesting innovative features
-  - Recommending tech stacks
-  - Developing winning strategies
+- **Claude-inspired UI** - Clean, minimal design with warm color palette
+- **Toggle Sidebar** - Slides in from the right, adjusting page content
+- **Multi-model Support** - Choose from 4 AI models:
+  - Kimi K2 (Moonshot AI)
+  - DeepSeek R1 (DeepSeek)
+  - Qwen 2.5 VL (Alibaba) - Vision
+  - Pixtral 12B (Mistral AI) - Vision
+- **Page Context** - Automatically extracts content from the current page
 - **Quick Actions** - One-click prompts for common tasks
-- **Beautiful UI** - Dark theme matching the main app aesthetic
+- **Settings** - Configure your API key in the extension
 
 ## Installation
 
-### Load as Unpacked Extension (Developer Mode)
+### Build from Source
 
-1. Open Chrome and navigate to `chrome://extensions/`
+```bash
+# Install dependencies
+npm install
+
+# Build the extension
+npm run build
+```
+
+### Load in Chrome
+
+1. Open Chrome and go to `chrome://extensions/`
 2. Enable **Developer mode** (toggle in top right)
 3. Click **Load unpacked**
-4. Select the `extension` folder from this project
-5. The extension icon will appear in your toolbar
+4. Select the `dist` folder
 
 ### Setup
 
-1. Click the extension icon or the floating chat button on any page
-2. Click **Settings** in the sidebar
+1. Click the extension icon or the floating button on any page
+2. Click **Settings** in the sidebar footer
 3. Enter your **Hyperbolic API Key**
-   - Get one from [Hyperbolic](https://hyperbolic.xyz)
 4. Click **Save**
 
 ## Usage
 
-1. **Navigate to any hackathon document page** (DevPost, Notion, GitHub, etc.)
-2. **Click the floating chat button** (bottom right) or extension icon
-3. **The sidebar opens** and automatically extracts page content
-4. **Select your preferred AI model** from the dropdown
-5. **Start chatting** - ask questions or use quick actions:
-   - "Analyze requirements" - Extract key requirements
-   - "Identify user pain points" - Find problems to solve
-   - "Suggest features" - Get innovative feature ideas
-   - "Winning strategy" - Get tips on impressing judges
-   - "Tech stack ideas" - Get technology recommendations
-
-## File Structure
-
-```
-extension/
-├── manifest.json         # Chrome extension manifest (v3)
-├── background.js         # Service worker for API calls
-├── content.js            # Content script for sidebar UI
-├── styles/
-│   └── sidebar.css       # Sidebar styling
-├── icons/
-│   ├── icon16.png
-│   ├── icon32.png
-│   ├── icon48.png
-│   └── icon128.png
-├── create-icons.js       # Icon generation script
-├── generate-icons.html   # Manual icon generation
-└── README.md             # This file
-```
+1. Navigate to any webpage
+2. Click the floating chat button (bottom right)
+3. The sidebar opens with page context loaded
+4. Select your preferred AI model
+5. Start chatting or use quick actions:
+   - **Analyze this page** - Extract key points
+   - **Find pain points** - Identify user problems
+   - **Suggest solutions** - Get innovative ideas
+   - **Tech recommendations** - Get stack suggestions
 
 ## Development
 
-### Regenerate Icons
-
 ```bash
-cd extension
-node create-icons.js
+# Install dependencies
+npm install
+
+# Build for production
+npm run build
+
+# Development with watch mode
+npm run dev
 ```
 
-### Test Changes
+## Project Structure
 
-1. Make changes to the extension files
-2. Go to `chrome://extensions/`
-3. Click the refresh icon on the extension card
-4. Reload the page you're testing on
+```
+├── src/
+│   ├── background/       # Service worker
+│   │   └── index.ts
+│   ├── content/          # React sidebar app
+│   │   ├── components/
+│   │   │   ├── App.tsx
+│   │   │   ├── Sidebar.tsx
+│   │   │   ├── ModelSelector.tsx
+│   │   │   ├── SettingsModal.tsx
+│   │   │   ├── Message.tsx
+│   │   │   └── Icons.tsx
+│   │   ├── styles/
+│   │   │   └── index.css
+│   │   └── index.tsx
+│   └── shared/           # Shared types
+│       ├── types.ts
+│       └── constants.ts
+├── public/
+│   ├── manifest.json
+│   └── icons/
+├── scripts/
+│   └── create-icons.cjs
+├── dist/                 # Build output (load this in Chrome)
+├── package.json
+├── vite.config.ts
+└── tsconfig.json
+```
+
+## Tech Stack
+
+- **React 18** - UI components
+- **TypeScript** - Type safety
+- **Vite** - Build tool
+- **Chrome Extension Manifest V3**
 
 ## API
 
-The extension uses the **Hyperbolic API** for AI chat completions, compatible with the same models used in the main application.
-
-### Supported Models
-
-| Model | Provider | Type | Vision |
-|-------|----------|------|--------|
-| Kimi K2 | Moonshot AI | Text | No |
-| DeepSeek R1 | DeepSeek | Text | No |
-| Qwen 2.5 VL | Alibaba | Vision | Yes |
-| Pixtral 12B | Mistral AI | Vision | Yes |
-
-## Permissions
-
-- `activeTab` - Access current tab content
-- `storage` - Store API key and preferences
-- `scripting` - Inject content script dynamically
+Uses the [Hyperbolic API](https://hyperbolic.xyz) for AI chat completions.
 
 ## License
 
-Part of the AI Frontrunners hackathon project.
+MIT

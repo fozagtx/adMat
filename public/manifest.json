@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Hackathon Doc Chat - AI Design Partner",
+  "name": "Hackathon Doc Chat",
   "version": "1.0.0",
-  "description": "Chat with hackathon documents as your AI design thinking partner. Toggle a sidebar to ideate, analyze, and brainstorm with multi-model AI support.",
+  "description": "Chat with any webpage as your AI design thinking partner. Analyze documents, brainstorm ideas, and develop winning strategies.",
   "permissions": [
     "activeTab",
     "storage",
@@ -18,7 +18,7 @@
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     },
-    "default_title": "Toggle Hackathon Doc Chat"
+    "default_title": "Toggle Doc Chat"
   },
   "background": {
     "service_worker": "background.js",
@@ -28,7 +28,7 @@
     {
       "matches": ["<all_urls>"],
       "js": ["content.js"],
-      "css": ["styles/sidebar.css"],
+      "css": ["content.css"],
       "run_at": "document_idle"
     }
   ],
@@ -37,11 +37,5 @@
     "32": "icons/icon32.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
-  },
-  "web_accessible_resources": [
-    {
-      "resources": ["styles/*", "icons/*"],
-      "matches": ["<all_urls>"]
-    }
-  ]
+  }
 }
